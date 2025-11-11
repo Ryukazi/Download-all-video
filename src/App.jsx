@@ -1,22 +1,33 @@
 import React, { useState } from "react";
 import "./style.css";
 
+// Detect platform from URL
+const detectPlatform = (url) => {
+  if (url.includes("tiktok.com") || url.includes("vt.tiktok.com")) return "tiktok";
+  if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+  if (url.includes("instagram.com")) return "instagram";
+  if (url.includes("facebook.com") || url.includes("fb.watch")) return "facebook";
+  if (url.includes("pinterest.com")) return "pinterest";
+  if (url.includes("twitter.com") || url.includes("x.com")) return "twitter";
+  return null;
+};
+
+// Parse video URL from API response
+const extractVideoUrl = (hostname, data) => {
+  if (hostname.includes("tiktok")) return data?.result?.data?.video_url || data?.result?.video || data?.result?.url;
+  if (hostname.includes("youtube") || hostname.includes("youtu.be")) return data?.result?.mp4 || data?.result?.url;
+  if (hostname.includes("instagram")) return data?.result?.url || data?.result?.downloads?.slice(-1)[0];
+  if (hostname.includes("facebook") || hostname.includes("fb.watch")) return data?.result?.data?.[0]?.hd_link || data?.result?.data?.[0]?.sd_link;
+  if (hostname.includes("pinterest")) return data?.result?.url;
+  if (hostname.includes("twitter") || hostname.includes("x.com")) return data?.result?.url;
+  return null;
+};
+
 const App = () => {
   const [url, setUrl] = useState("");
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [platform, setPlatform] = useState("");
-
-  const detectPlatform = (url) => {
-    if (url.includes("tiktok")) return "tiktok";
-    if (url.includes("youtube") || url.includes("youtu.be")) return "youtube";
-    if (url.includes("instagram")) return "instagram";
-    if (url.includes("facebook")) return "facebook";
-    if (url.includes("twitter") || url.includes("x.com")) return "twitter";
-    if (url.includes("pinterest")) return "pinterest";
-    return null;
-  };
 
   const handleDownload = async () => {
     if (!url.trim()) {
@@ -30,31 +41,22 @@ const App = () => {
       return;
     }
 
-    setPlatform(platformDetected);
     setLoading(true);
     setError("");
     setVideo(null);
 
     try {
-      const res = await fetch(
-        `https://universal-dl-one.vercel.app/api/${platformDetected}?url=${encodeURIComponent(
-          url
-        )}`
-      );
+      const apiUrl = `https://universal-dl-one.vercel.app/api/${platformDetected}?url=${encodeURIComponent(url)}`;
+      const res = await fetch(apiUrl);
       const data = await res.json();
 
-      // Handle different response formats
-      let videoUrl =
-        data?.result?.video?.noWatermark ||
-        data?.result?.url ||
-        data?.download_links?.c ||
-        data?.video?.url ||
-        null;
+      const hostname = new URL(url).hostname;
+      const videoUrl = extractVideoUrl(hostname, data);
 
       if (videoUrl) {
         setVideo(videoUrl);
       } else {
-        setError("Failed to extract video. Try another link!");
+        setError("⚠️ Couldn't parse video link for this platform.");
       }
     } catch (err) {
       console.error(err);
@@ -68,8 +70,7 @@ const App = () => {
     <div className="container">
       <h1 className="title">🌐 Universal Video Downloader</h1>
       <p className="subtitle">
-        Paste any <b>TikTok</b>, <b>YouTube</b>, <b>Instagram</b>, <b>Facebook</b>,
-        <b> Twitter</b>, or <b>Pinterest</b> link below 👇
+        Paste any <b>TikTok</b>, <b>YouTube</b>, <b>Instagram</b>, <b>Facebook</b>, <b>Twitter</b>, or <b>Pinterest</b> link below 👇
       </p>
 
       <div className="input-group">
