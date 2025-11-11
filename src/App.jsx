@@ -1,60 +1,108 @@
-import React, {useState} from 'react'
-const API_BASE = 'https://universal-dl-one.vercel.app'
-const endpoints = [
-  {path:'/api/instagram?url=', label:'Instagram'},
-  {path:'/api/tiktok?url=', label:'TikTok'},
-  {path:'/api/youtube?url=', label:'YouTube'},
-  {path:'/api/facebook?url=', label:'Facebook'},
-  {path:'/api/pinterest?url=', label:'Pinterest'},
-  {path:'/api/twitter?url=', label:'Twitter'},
-]
+import React, { useState } from "react";
+import "./style.css";
 
-export default function App(){
-  const [input, setInput] = useState('')
-  const [selected, setSelected] = useState(endpoints[0].path)
+const App = () => {
+  const [url, setUrl] = useState("");
+  const [video, setVideo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [platform, setPlatform] = useState("");
 
-  function openResult(){
-    if(!input) return alert('Please paste a URL to try')
-    const full = `${API_BASE}${selected}${encodeURIComponent(input)}`
-    window.open(full, '_blank')
-  }
+  const detectPlatform = (url) => {
+    if (url.includes("tiktok")) return "tiktok";
+    if (url.includes("youtube") || url.includes("youtu.be")) return "youtube";
+    if (url.includes("instagram")) return "instagram";
+    if (url.includes("facebook")) return "facebook";
+    if (url.includes("twitter") || url.includes("x.com")) return "twitter";
+    if (url.includes("pinterest")) return "pinterest";
+    return null;
+  };
+
+  const handleDownload = async () => {
+    if (!url.trim()) {
+      setError("Please enter a video URL.");
+      return;
+    }
+
+    const platformDetected = detectPlatform(url);
+    if (!platformDetected) {
+      setError("Unsupported URL! Try TikTok, YouTube, Instagram, etc.");
+      return;
+    }
+
+    setPlatform(platformDetected);
+    setLoading(true);
+    setError("");
+    setVideo(null);
+
+    try {
+      const res = await fetch(
+        `https://universal-dl-one.vercel.app/api/${platformDetected}?url=${encodeURIComponent(
+          url
+        )}`
+      );
+      const data = await res.json();
+
+      // Handle different response formats
+      let videoUrl =
+        data?.result?.video?.noWatermark ||
+        data?.result?.url ||
+        data?.download_links?.c ||
+        data?.video?.url ||
+        null;
+
+      if (videoUrl) {
+        setVideo(videoUrl);
+      } else {
+        setError("Failed to extract video. Try another link!");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Error fetching video.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="page">
-      <header className="top">
-        <div className="wrap">
-          <h1>Universal Downloader API</h1>
-          <p className="by">Creator: <strong>Denish Tharu</strong></p>
+    <div className="container">
+      <h1 className="title">🌐 Universal Video Downloader</h1>
+      <p className="subtitle">
+        Paste any <b>TikTok</b>, <b>YouTube</b>, <b>Instagram</b>, <b>Facebook</b>,
+        <b> Twitter</b>, or <b>Pinterest</b> link below 👇
+      </p>
+
+      <div className="input-group">
+        <input
+          type="text"
+          placeholder="Enter video URL..."
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <button onClick={handleDownload} disabled={loading}>
+          {loading ? "Fetching..." : "Get Video"}
+        </button>
+      </div>
+
+      {error && <p className="error">{error}</p>}
+
+      {video && (
+        <div className="video-card">
+          <video src={video} controls autoPlay loop></video>
+          <a href={video} download className="download-btn">
+            ⬇️ Download Video
+          </a>
         </div>
-      </header>
+      )}
 
-      <main className="wrap">
-        <section className="card">
-          <h2>Available Endpoints</h2>
-          <div className="grid">
-            {endpoints.map(e => (
-              <div key={e.path} className="ep">
-                <div className="path">{e.path}</div>
-                <div className="example">GET {API_BASE}{e.path}<span className="small">https://example.com/post/123</span></div>
-                <button onClick={()=>window.open(`${API_BASE}${e.path}${encodeURIComponent('https://example.com/sample')}`,'_blank')}>Try Now</button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="card">
-          <h3>Try an endpoint</h3>
-          <input value={input} onChange={e=>setInput(e.target.value)} placeholder="Paste a URL to download from" />
-          <select value={selected} onChange={e=>setSelected(e.target.value)}>
-            {endpoints.map(ep=> <option key={ep.path} value={ep.path}>{ep.label}</option>)}
-          </select>
-          <div className="actions">
-            <button onClick={openResult}>Open Result</button>
-          </div>
-        </section>
-      </main>
-
-      <footer className="foot">© {new Date().getFullYear()} Denish Tharu</footer>
+      <footer className="footer">
+        <p>
+          Made with ❤️ by <b>Denish Tharu</b> <br />
+          Powered by <a href="https://universal-dl-one.vercel.app" target="_blank">Universal Downloader API</a>
+        </p>
+      </footer>
     </div>
-  )
-                                        }
+  );
+};
+
+export default App;
