@@ -12,6 +12,16 @@ const detectPlatform = (url) => {
   return null;
 };
 
+// Expand short URLs (like TikTok vt.tiktok.com)
+async function expandShortUrl(shortUrl) {
+  try {
+    const res = await fetch(shortUrl, { method: "HEAD", redirect: "follow" });
+    return res.url || shortUrl;
+  } catch {
+    return shortUrl;
+  }
+}
+
 // Parse video URL from API response
 const extractVideoUrl = (hostname, data) => {
   if (hostname.includes("tiktok")) return data?.result?.data?.video_url || data?.result?.video || data?.result?.url;
@@ -35,7 +45,19 @@ const App = () => {
       return;
     }
 
-    const platformDetected = detectPlatform(url);
+    let videoUrlInput = url;
+
+    // Expand TikTok short URLs
+    if (videoUrlInput.includes("vt.tiktok.com")) {
+      try {
+        videoUrlInput = await expandShortUrl(videoUrlInput);
+      } catch {
+        setError("Failed to expand short URL.");
+        return;
+      }
+    }
+
+    const platformDetected = detectPlatform(videoUrlInput);
     if (!platformDetected) {
       setError("Unsupported URL! Try TikTok, YouTube, Instagram, etc.");
       return;
@@ -46,11 +68,11 @@ const App = () => {
     setVideo(null);
 
     try {
-      const apiUrl = `https://universal-dl-one.vercel.app/api/${platformDetected}?url=${encodeURIComponent(url)}`;
+      const apiUrl = `https://universal-dl-one.vercel.app/api/${platformDetected}?url=${encodeURIComponent(videoUrlInput)}`;
       const res = await fetch(apiUrl);
       const data = await res.json();
 
-      const hostname = new URL(url).hostname;
+      const hostname = new URL(videoUrlInput).hostname;
       const videoUrl = extractVideoUrl(hostname, data);
 
       if (videoUrl) {
