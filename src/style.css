@@ -1,16 +1,116 @@
-:root{--bg:#f8fafc;--card:#ffffff;--text:#0b1220;--muted:#6b7280;--accent:#0f766e}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,Roboto,Arial;background:var(--bg);color:var(--text)}
-.wrap{max-width:980px;margin:0 auto;padding:28px}
-.top{padding:36px 0}
-.top h1{margin:0;font-size:28px}
-.by{color:var(--muted);margin-top:6px}
-.card{background:var(--card);padding:20px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.04);margin-bottom:18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.ep{padding:12px;border-radius:10px;border:1px solid #eef2f7}
-.path{font-weight:600}
-.example{color:var(--muted);font-size:13px}
-input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef6;margin-top:8px}
-button{background:var(--accent);color:white;padding:10px 14px;border-radius:8px;border:0;cursor:pointer;margin-top:10px}
-.foot{text-align:center;padding:18px 0;color:var(--muted)}
-.small{display:block;font-size:12px;color:var(--muted)}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: radial-gradient(circle at top, #050510, #000);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+  width: 90%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+.title {
+  font-size: 2rem;
+  color: cyan;
+  text-shadow: 0 0 12px cyan;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #aaa;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: #111;
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: inset 0 0 5px #00ffff33;
+}
+
+.input-group button {
+  background: cyan;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.input-group button:hover {
+  background: #00ffee;
+}
+
+.error {
+  color: #ff4d4d;
+  margin-top: 0.5rem;
+}
+
+.video-card {
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1rem;
+  border-radius: 15px;
+  box-shadow: 0 0 20px #00ffff66;
+}
+
+.video-card video {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.download-btn {
+  display: inline-block;
+  text-decoration: none;
+  background: #00ffff;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.download-btn:hover {
+  background: #00ffcc;
+}
+
+.footer {
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.footer a {
+  color: cyan;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
